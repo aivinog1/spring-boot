@@ -20,7 +20,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.health.CompositeHealthContributor;
 import org.springframework.boot.actuate.health.CompositeReactiveHealthContributor;
 import org.springframework.boot.actuate.health.Health;
@@ -28,6 +30,8 @@ import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.actuate.health.HealthContributorRegistry;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.health.HealthEndpointGroups;
+import org.springframework.boot.actuate.health.HealthEndpointGroupsRegistryCustomizer;
+import org.springframework.boot.actuate.health.HealthEndpointGroupsRegistryCustomizers;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.HttpCodeStatusMapper;
 import org.springframework.boot.actuate.health.NamedContributor;
@@ -68,6 +72,12 @@ class HealthEndpointConfiguration {
 	HealthEndpointGroups healthEndpointGroups(ApplicationContext applicationContext,
 			HealthEndpointProperties properties) {
 		return new AutoConfiguredHealthEndpointGroups(applicationContext, properties);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	HealthEndpointGroupsRegistryCustomizers healthEndpointGroupsRegistryCustomizers(ObjectProvider<HealthEndpointGroupsRegistryCustomizer> customizers) {
+		return new HealthEndpointGroupsRegistryCustomizers(customizers.orderedStream().collect(Collectors.toList()));
 	}
 
 	@Bean
